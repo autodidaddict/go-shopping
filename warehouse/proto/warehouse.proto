@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package warehouse;
+
+service Warehouse {
+    rpc GetWarehouseDetails(DetailsRequest) returns (DetailsResponse);
+}
+
+message DetailsRequest {
+    string SKU = 1;
+}
+
+message DetailsResponse {
+    string SKU = 1;
+    uint32 StockRemaining = 2;
+    string Manufacturer = 3;
+    string ModelNumber = 4;
+}
