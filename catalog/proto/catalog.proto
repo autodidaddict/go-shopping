@@ -14,6 +14,8 @@ message DetailRequest {
 }
 message DetailResponse {
     Product Product = 1;
+
+    Error Error = 100;
 }
 
 message CategoryRequest {
@@ -21,6 +23,8 @@ message CategoryRequest {
 }
 message CategoryResponse {
     repeated ProductCategory Categories = 1;
+
+    Error Error = 100;
 }
 
 message CategoryProductsRequest {
@@ -28,6 +32,8 @@ message CategoryProductsRequest {
 }
 message CategoryProductsResponse {
     repeated Product Products = 1;
+
+    Error Error = 100;
 }
 
 message SearchRequest {
@@ -36,6 +42,8 @@ message SearchRequest {
 }
 message SearchResponse {
     repeated Product SearchResults = 1;
+
+    Error Error = 100;
 }
 
 
@@ -51,4 +59,16 @@ message ProductCategory {
     uint64 CategoryID = 1;
     string Name = 2;
     string Description = 3;
+}
+
+message Error {
+    ErrorCode Code = 1;
+    uint32 HttpHint = 2;
+    string Message = 3;
+}
+enum ErrorCode {
+    ERR_UNKNOWN = 0;
+    ERR_NOSUCHSKU = 1;
+    ERR_NOSUCHCATEGORY = 2;
+    ERR_NOTAUTHORIZED = 3;
 }
