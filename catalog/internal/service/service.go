@@ -17,8 +17,8 @@ func (c *catalogService) GetProductDetails(ctx context.Context, request *catalog
 	return nil
 }
 
-func (c *catalogService) GetProductCategories(ctx context.Context, request *catalog.CategoryRequest,
-	response *catalog.CategoryResponse) error {
+func (c *catalogService) GetProductCategories(ctx context.Context, request *catalog.AllCategoriesRequest,
+	response *catalog.AllCategoriesResponse) error {
 	return nil
 }
 
