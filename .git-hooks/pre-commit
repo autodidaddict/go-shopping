@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e
+
+GREEN=`tput setaf 2`
+YELLOW=`tput setaf 3`
+RESET=`tput sgr0`
+
+if git diff --cached --name-only | grep --quiet "shipping/proto/shipping.proto"
+then
+	echo "${YELLOW}Regenerating Shipping Protobufs${RESET}"
+	make shipping-proto
+else
+	echo "${GREEN}Shipping Protobufs Unchanged${RESET}"
+fi
+if git diff --cached --name-only | grep --quiet "catalog/proto/catalog.proto"
+then
+	echo "${YELLOW}Regenerating Catalog Protobufs${RESET}"
+	make catalog-proto
+else
+	echo "${GREEN}Catalog Protobufs Unchanged${RESET}"
+fi
+if git diff --cached --name-only | grep --quiet "warehouse/proto/warehouse.proto"
+then
+	echo "${YELLOW}Regenerating Warehouse Protobufs${RESET}"
+	make warehouse-proto
+else
+	echo "${GREEN}Warehouse Protobufs Unchanged${RESET}"
+fi

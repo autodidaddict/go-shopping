@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package shipping;
+
+service Shipping {
+    rpc GetShippingCost(ShippingCostRequest) returns (ShippingCostResponse);
+    rpc MarkItemShipped(MarkShippedRequest) returns (MarkShippedResponse);
+    rpc GetShippingStatus(ShippingStatusRequest) returns (ShippingStatusResponse);
+}
+
+message ShippingCostRequest {
+    string SKU = 1;
+    string Zipcode = 2;
+}
+message ShippingCostResponse {
+    repeated ShippingCost ShippingCosts = 1;
+}
+
+message MarkShippedRequest {
+    string SKU = 1;
+    uint64 OrderID = 2;
+    string Note = 3;
+    ShippingMethod ShippingMethod = 4;
+}
+message MarkShippedResponse {
+    bool Success = 1;
+    string TrackingNumber = 2;
+}
+
+message ShippingStatusRequest {
+    uint64 OrderID = 1;
+}
+message ShippingStatusResponse {
+    string TrackingNumber = 1;
+    ShippingMethod ShippingMethod = 2;
+}
+
+message ShippingCost {
+    ShippingMethod Method = 1;
+    int64 Price = 2;
+}
+
+enum ShippingMethod {
+    UNKNOWN = 0;
+    USPS = 1;
+    UPS = 2;
+    FEDEX = 3;
+    RAVEN = 4;
+}
