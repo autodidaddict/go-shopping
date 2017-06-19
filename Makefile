@@ -13,13 +13,29 @@ clean:
 cover: test
 	@go tool cover -html=coverage-all.out
 
-build: clean
+
+warehouse-lint:
+	@golint -set_exit_status warehouse/internal/... warehouse/cmd/...
+
+warehouse: clean warehouse-lint
 	@echo Building Warehouse Service...
 	@cd warehouse/cmd/warehoused && CGO_ENABLED=0 go build ${LDFLAGSW} -a -installsuffix cgo -o warehoused main.go
+
+catalog-lint:
+	@golint -set_exit_status catalog/internal/... catalog/cmd/...
+
+catalog: clean catalog-lint
 	@echo Building Catalog Service...
 	@cd catalog/cmd/catalogd && CGO_ENABLED=0 go build ${LDFLAGSC} -a -installsuffix cgo -o catalogd main.go
+
+shipping-lint:
+	@golint -set_exit_status shipping/internal/... shipping/cmd/...
+
+shipping: clean shipping-lint
 	@echo Building Shipping Service...
 	@cd shipping/cmd/shippingd && CGO_ENABLED=0 go build ${LDFLAGSS} -a -installsuffix cgo -o shippingd main.go
+
+all: warehouse catalog shipping
 
 catalog-proto:
 	@cd catalog/proto && protoc --go_out=plugins=micro:. catalog.proto

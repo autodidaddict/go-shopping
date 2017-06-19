@@ -11,7 +11,7 @@ import (
 
 func main() {
 	svc := grpc.NewService(
-		micro.Name("go.shopping.srv.warehouse"),
+		micro.Name(config.ServiceName),
 		micro.RegisterTTL(time.Second*30),
 		micro.RegisterInterval(time.Second*10),
 		micro.Version(config.Version),

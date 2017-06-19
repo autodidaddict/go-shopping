@@ -4,4 +4,5 @@ package config
 // compilation phase.
 var Version = "(undefined)"
 
+// ServiceName is the discovery identity for this service.
 const ServiceName = "go.shopping.srv.shipping"

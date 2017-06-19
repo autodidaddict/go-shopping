@@ -7,18 +7,20 @@ import (
 	"github.com/micro/go-grpc"
 	"github.com/micro/go-micro"
 	"time"
+	"github.com/autodidaddict/go-shopping/catalog/internal/platform/redis"
 )
 
 func main() {
 	svc := grpc.NewService(
-		micro.Name("go.shopping.srv.catalog"),
+		micro.Name(config.ServiceName),
 		micro.RegisterTTL(time.Second*30),
 		micro.RegisterInterval(time.Second*10),
 		micro.Version(config.Version),
 	)
 	svc.Init()
 
-	catalog.RegisterCatalogHandler(svc.Server(), service.NewCatalogService())
+	redisCatalogRepository := redis.NewRedisRepository()
+	catalog.RegisterCatalogHandler(svc.Server(), service.NewCatalogService(redisCatalogRepository))
 
 	if err := svc.Run(); err != nil {
 		panic(err)

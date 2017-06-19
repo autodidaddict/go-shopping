@@ -5,11 +5,22 @@ import (
 	"golang.org/x/net/context"
 )
 
-type catalogService struct{}
+type catalogService struct {
+	catalogRepo catalogRepository
+}
+
+type catalogRepository interface {
+	GetProduct(sku string) (product *catalog.Product, err error)
+	GetCategories() (categories []*catalog.ProductCategory, err error)
+	GetProductsInCategory(categoryID uint64) (products []*catalog.Product, err error)
+	Find(searchTerm string, categories []uint64) (products []*catalog.Product, err error)
+}
 
 // NewCatalogService creates a new catalog service
-func NewCatalogService() catalog.CatalogHandler {
-	return &catalogService{}
+func NewCatalogService(catalogRepo catalogRepository) catalog.CatalogHandler {
+	return &catalogService{
+		catalogRepo: catalogRepo,
+	}
 }
 
 func (c *catalogService) GetProductDetails(ctx context.Context, request *catalog.DetailRequest,

@@ -27,3 +27,7 @@ then
 else
 	echo "${GREEN}Warehouse Protobufs Unchanged${RESET}"
 fi
+
+make catalog-lint
+make warehouse-lint
+make shipping-lint
