@@ -8,10 +8,10 @@ LDFLAGSS:=-ldflags "-X github.com/autodidaddict/go-shopping/shipping/internal/pl
 default: run
 
 clean:
-	rm -rf ./coverage.out ./coverage-all.out ./warehouse/cmd/warehoused/warehoused
+	@rm -rf ./coverage.out ./coverage-all.out ./warehouse/cmd/warehoused/warehoused
 
 cover: test
-	go tool cover -html=coverage-all.out
+	@go tool cover -html=coverage-all.out
 
 build: clean
 	@echo Building Warehouse Service...
@@ -32,6 +32,7 @@ proto: shipping-proto catalog-proto warehouse-proto
 	@echo All Protobufs Regenerated
 
 hooks:
+	chmod 755 .git-hooks/*
 	cd .git/hooks
 	$(foreach hook,$(HOOKS), ln -s -f ../../.git-hooks/${hook} .git/hooks/${hook};)
 

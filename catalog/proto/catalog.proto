@@ -4,7 +4,7 @@ package catalog;
 
 service Catalog {
     rpc GetProductDetails(DetailRequest) returns (DetailResponse);
-    rpc GetProductCategories(CategoryRequest) returns (CategoryResponse);
+    rpc GetProductCategories(AllCategoriesRequest) returns (AllCategoriesResponse);
     rpc GetProductsInCategory(CategoryProductsRequest) returns (CategoryProductsResponse);
     rpc ProductSearch(SearchRequest) returns (SearchResponse);
 }
@@ -18,10 +18,10 @@ message DetailResponse {
     Error Error = 100;
 }
 
-message CategoryRequest {
+message AllCategoriesRequest {
     int32 Unused = 1;
 }
-message CategoryResponse {
+message AllCategoriesResponse {
     repeated ProductCategory Categories = 1;
 
     Error Error = 100;
