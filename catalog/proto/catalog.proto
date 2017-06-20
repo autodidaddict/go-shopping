@@ -67,8 +67,9 @@ message Error {
     string Message = 3;
 }
 enum ErrorCode {
-    ERR_UNKNOWN = 0;
-    ERR_NOSUCHSKU = 1;
-    ERR_NOSUCHCATEGORY = 2;
-    ERR_NOTAUTHORIZED = 3;
+    UNKNOWN = 0;
+    NOSUCHSKU = 1;
+    NOSUCHCATEGORY = 2;
+    NOTAUTHORIZED = 3;
+    BADSEARCHREQUEST = 4;
 }

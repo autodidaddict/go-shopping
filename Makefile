@@ -7,12 +7,11 @@ LDFLAGSS:=-ldflags "-X github.com/autodidaddict/go-shopping/shipping/internal/pl
 
 default: run
 
+test:
+	@go test -v ./...
+
 clean:
 	@rm -rf ./coverage.out ./coverage-all.out ./warehouse/cmd/warehoused/warehoused
-
-cover: test
-	@go tool cover -html=coverage-all.out
-
 
 warehouse-lint:
 	@golint -set_exit_status warehouse/internal/... warehouse/cmd/...
