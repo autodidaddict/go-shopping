@@ -35,3 +35,8 @@ func (r *CatalogRepository) Find(searchTerm string, categories []uint64) (produc
 func (r *CatalogRepository) CategoryExists(categoryID uint64) (exists bool, err error) {
 	return
 }
+
+// ProductExists indicates whether a product exists
+func (r *CatalogRepository) ProductExists(sku string) (exists bool, err error) {
+	return
+}

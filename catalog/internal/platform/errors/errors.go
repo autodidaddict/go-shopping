@@ -14,4 +14,7 @@ const (
 
 	// NoSuchCategory indicates a request for a category that doesn't exist.
 	NoSuchCategory = Error("No such category")
+
+	// NoSuchProduct indicates a request for a non-existent product
+	NoSuchProduct = Error("No such product")
 )

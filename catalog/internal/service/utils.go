@@ -29,6 +29,12 @@ func generateServiceError(err error) *catalog.Error {
 				Code:    catalog.ErrorCode_NOSUCHCATEGORY,
 				Message: err.Error()}
 		}
+	case errors.NoSuchProduct:
+		{
+			catalogError = &catalog.Error{HttpHint: http.StatusNotFound,
+				Code:    catalog.ErrorCode_NOSUCHSKU,
+				Message: err.Error()}
+		}
 	default:
 		{
 			catalogError = &catalog.Error{HttpHint: http.StatusInternalServerError,

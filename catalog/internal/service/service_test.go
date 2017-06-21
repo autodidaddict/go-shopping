@@ -11,11 +11,59 @@ import (
 )
 
 func TestProductRetrieval(t *testing.T) {
-	return
+	Convey("Given a catalog service", t, func() {
+		repo := newFakeRepo()
+		svc := service.NewCatalogService(repo)
+		ctx := context.Background()
+
+		Convey("Querying for a single product should invoke repository", func() {
+			repo.shouldFail = false
+			var resp catalog.DetailResponse
+			err := svc.GetProductDetails(ctx, &catalog.DetailRequest{SKU: "8675309"}, &resp)
+			So(err, ShouldBeNil)
+			So(resp.Product.SKU, ShouldEqual, "8675309")
+		})
+
+		Convey("Querying for a non-existent product should produce a hinted failure", func() {
+			repo.shouldFail = false
+			var resp catalog.DetailResponse
+			err := svc.GetProductDetails(ctx, &catalog.DetailRequest{SKU: "DONTEXIST"}, &resp)
+			So(err, ShouldBeNil)
+			So(resp.Error, ShouldNotBeNil)
+			So(resp.Error.HttpHint, ShouldEqual, http.StatusNotFound)
+		})
+
+		Convey("Querying for a product should fail when repository fails", func() {
+			repo.shouldFail = true
+			var resp catalog.DetailResponse
+			err := svc.GetProductDetails(ctx, &catalog.DetailRequest{SKU: "8675309"}, &resp)
+			So(err, ShouldNotBeNil)
+		})
+	})
 }
 
 func TestCategoriesRetrieval(t *testing.T) {
-	return
+	Convey("Given a catalog service", t, func() {
+		repo := newFakeRepo()
+		svc := service.NewCatalogService(repo)
+		ctx := context.Background()
+
+		Convey("Querying categories should invoke repository", func() {
+			repo.shouldFail = false
+			var resp catalog.AllCategoriesResponse
+			err := svc.GetProductCategories(ctx, &catalog.AllCategoriesRequest{}, &resp)
+			So(err, ShouldBeNil)
+			So(len(resp.Categories), ShouldEqual, 2)
+			So(resp.Categories[0].Name, ShouldEqual, "Electronics")
+		})
+
+		Convey("querying categories should fail when the repo fails", func() {
+			repo.shouldFail = true
+			var resp catalog.AllCategoriesResponse
+			err := svc.GetProductCategories(ctx, &catalog.AllCategoriesRequest{}, &resp)
+			So(err, ShouldNotBeNil)
+		})
+	})
 }
 
 func TestProductsWithinCategory(t *testing.T) {
@@ -113,12 +161,24 @@ func newFakeRepo() *fakeRepo {
 }
 
 func (r *fakeRepo) GetProduct(sku string) (product *catalog.Product, err error) {
-	product = &catalog.Product{}
+	if r.shouldFail {
+		return nil, errors.New("Faily Fail")
+	}
+
+	product = &catalog.Product{
+		SKU: sku,
+	}
 	return
 }
 
 func (r *fakeRepo) GetCategories() (categories []*catalog.ProductCategory, err error) {
-	return
+	if r.shouldFail {
+		return nil, errors.New("Faily Fail")
+	}
+	return []*catalog.ProductCategory{
+		&catalog.ProductCategory{CategoryID: 42, Name: "Electronics", Description: "Super electronicy electronics"},
+		&catalog.ProductCategory{CategoryID: 12, Name: "Toys", Description: "Toys"},
+	}, nil
 }
 
 func (r *fakeRepo) GetProductsInCategory(categoryID uint64) (products []*catalog.Product, err error) {
@@ -136,6 +196,10 @@ func (r *fakeRepo) GetProductsInCategory(categoryID uint64) (products []*catalog
 
 func (r *fakeRepo) CategoryExists(categoryID uint64) (bool, error) {
 	return categoryID == 42, nil
+}
+
+func (r *fakeRepo) ProductExists(sku string) (bool, error) {
+	return sku == "8675309", nil
 }
 
 func (r *fakeRepo) Find(searchTerm string, categories []uint64) (products []*catalog.Product, err error) {
