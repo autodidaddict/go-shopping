@@ -24,7 +24,7 @@ func main() {
 	)
 	svc.Init()
 
-	redisCatalogRepository := redis.NewRedisRepository()
+	redisCatalogRepository := redis.NewRedisRepository(":6379")
 	catalog.RegisterCatalogHandler(svc.Server(), service.NewCatalogService(redisCatalogRepository))
 
 	if err := svc.Run(); err != nil {
