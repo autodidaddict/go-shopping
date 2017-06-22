@@ -14,8 +14,6 @@ message ShippingCostRequest {
 }
 message ShippingCostResponse {
     repeated ShippingCost shipping_costs = 1;
-
-    Error error = 100;
 }
 
 message MarkShippedRequest {
@@ -27,7 +25,6 @@ message MarkShippedRequest {
 message MarkShippedResponse {
     bool success = 1;
     string tracking_number = 2;
-    Error error = 100;
 }
 
 message ShippingStatusRequest {
@@ -36,7 +33,6 @@ message ShippingStatusRequest {
 message ShippingStatusResponse {
     ShippingStatus shipping_status = 1;
 
-    Error error = 100;
 }
 
 message ShippingStatus {
@@ -55,16 +51,3 @@ enum ShippingMethod {
     SM_FEDEX = 3;
     SM_RAVEN = 4;
 }
-
-message Error {
-    ErrorCode code = 1;
-    uint32 http_hint = 2;
-    string message = 3;
-}
-enum ErrorCode {
-    UNKNOWN = 0;
-    NOSUCHSKU = 1;
-    NOSUCHORDER = 2;
-    NOTAUTHORIZED = 3;
-}
-

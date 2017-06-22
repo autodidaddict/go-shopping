@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/autodidaddict/go-shopping/catalog/internal/platform/errors"
 	"github.com/autodidaddict/go-shopping/catalog/proto"
+	"github.com/micro/go-micro/errors"
 	"golang.org/x/net/context"
 )
 
@@ -29,17 +29,19 @@ func NewCatalogService(catalogRepo catalogRepository) catalog.CatalogHandler {
 func (c *catalogService) GetProductDetails(ctx context.Context, request *catalog.DetailRequest,
 	response *catalog.DetailResponse) error {
 
+	if request == nil {
+		return errors.BadRequest("", "Missing detail request")
+	}
 	exists, err := c.catalogRepo.ProductExists(request.SKU)
 	if err != nil {
-		return err
+		return errors.InternalServerError("", "Failed to check product existence: %s", err.Error())
 	}
 	if !exists {
-		response.Error = generateServiceError(errors.NoSuchProduct)
-		return nil
+		return errors.NotFound(request.SKU, "No such product")
 	}
 	results, err := c.catalogRepo.GetProduct(request.SKU)
 	if err != nil {
-		return err
+		return errors.InternalServerError(request.SKU, "Failed to fetch product: %s", err.Error())
 	}
 
 	response.Product = results
@@ -49,9 +51,12 @@ func (c *catalogService) GetProductDetails(ctx context.Context, request *catalog
 func (c *catalogService) GetProductCategories(ctx context.Context, request *catalog.AllCategoriesRequest,
 	response *catalog.AllCategoriesResponse) error {
 
+	if request == nil {
+		return errors.BadRequest("", "Missing categories request")
+	}
 	results, err := c.catalogRepo.GetCategories()
 	if err != nil {
-		return err
+		return errors.InternalServerError("", "Failed to load categories: %s", err.Error())
 	}
 	response.Categories = results
 	return nil
@@ -60,18 +65,20 @@ func (c *catalogService) GetProductCategories(ctx context.Context, request *cata
 func (c *catalogService) GetProductsInCategory(ctx context.Context, request *catalog.CategoryProductsRequest,
 	response *catalog.CategoryProductsResponse) error {
 
+	if request == nil {
+		return errors.BadRequest("", "Missing category products request")
+	}
 	exists, err := c.catalogRepo.CategoryExists(request.CategoryID)
 	if err != nil {
-		return err
+		return errors.InternalServerError("", "Failed to check category existence: %s", err.Error())
 	}
 	if !exists {
-		response.Error = generateServiceError(errors.NoSuchCategory)
-		return nil
+		return errors.NotFound(string(request.CategoryID), "No such category")
 	}
 
 	results, err := c.catalogRepo.GetProductsInCategory(request.CategoryID)
 	if err != nil {
-		return err
+		return errors.InternalServerError("", "Failed to load products in category: %s", err.Error())
 	}
 	response.Products = results
 	return nil
@@ -80,14 +87,21 @@ func (c *catalogService) GetProductsInCategory(ctx context.Context, request *cat
 func (c *catalogService) ProductSearch(ctx context.Context, request *catalog.SearchRequest,
 	response *catalog.SearchResponse) error {
 
+	if request == nil {
+		return errors.BadRequest("", "Missing product search request")
+	}
 	if !validateSearchTerm(request.SearchTerm) {
-		response.Error = generateServiceError(errors.BadSearchTerm)
+		return errors.BadRequest("", "Invalid search term")
 	}
 	results, repoErr := c.catalogRepo.Find(request.SearchTerm, request.Categories)
 	if repoErr != nil {
-		return repoErr
+		return errors.InternalServerError("", "Failed to perform search: %s", repoErr.Error())
 	}
 	response.SearchResults = results
 
 	return nil
+}
+
+func validateSearchTerm(term string) bool {
+	return len(term) > 2
 }

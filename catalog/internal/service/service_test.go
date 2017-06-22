@@ -1,9 +1,10 @@
 package service_test
 
 import (
-	"errors"
+	stderrors "errors"
 	"github.com/autodidaddict/go-shopping/catalog/internal/service"
 	"github.com/autodidaddict/go-shopping/catalog/proto"
+	"github.com/micro/go-micro/errors"
 	. "github.com/smartystreets/goconvey/convey"
 	"golang.org/x/net/context"
 	"net/http"
@@ -28,9 +29,10 @@ func TestProductRetrieval(t *testing.T) {
 			repo.shouldFail = false
 			var resp catalog.DetailResponse
 			err := svc.GetProductDetails(ctx, &catalog.DetailRequest{SKU: "DONTEXIST"}, &resp)
-			So(err, ShouldBeNil)
-			So(resp.Error, ShouldNotBeNil)
-			So(resp.Error.HttpHint, ShouldEqual, http.StatusNotFound)
+			So(err, ShouldNotBeNil)
+			realError := errors.Parse(err.Error())
+			So(realError, ShouldNotBeNil)
+			So(realError.Code, ShouldEqual, http.StatusNotFound)
 		})
 
 		Convey("Querying for a product should fail when repository fails", func() {
@@ -62,6 +64,9 @@ func TestCategoriesRetrieval(t *testing.T) {
 			var resp catalog.AllCategoriesResponse
 			err := svc.GetProductCategories(ctx, &catalog.AllCategoriesRequest{}, &resp)
 			So(err, ShouldNotBeNil)
+			realError := errors.Parse(err.Error())
+			So(realError, ShouldNotBeNil)
+			So(realError.Code, ShouldEqual, http.StatusInternalServerError)
 		})
 	})
 }
@@ -89,10 +94,10 @@ func TestProductsWithinCategory(t *testing.T) {
 			err := svc.GetProductsInCategory(ctx, &catalog.CategoryProductsRequest{
 				CategoryID: 1,
 			}, &resp)
-			So(err, ShouldBeNil)
-			So(resp.Error, ShouldNotBeNil)
-			So(resp.Error.HttpHint, ShouldEqual, http.StatusNotFound)
-			So(resp.Error.Code, ShouldEqual, catalog.ErrorCode_NOSUCHCATEGORY)
+			So(err, ShouldNotBeNil)
+			realError := errors.Parse(err.Error())
+			So(realError, ShouldNotBeNil)
+			So(realError.Code, ShouldEqual, http.StatusNotFound)
 		})
 
 		Convey("querying products for a category should fail when the repo fails", func() {
@@ -102,6 +107,9 @@ func TestProductsWithinCategory(t *testing.T) {
 				CategoryID: 42,
 			}, &resp)
 			So(err, ShouldNotBeNil)
+			realError := errors.Parse(err.Error())
+			So(realError, ShouldNotBeNil)
+			So(realError.Code, ShouldEqual, http.StatusInternalServerError)
 		})
 	})
 }
@@ -143,10 +151,11 @@ func TestProductSearch(t *testing.T) {
 					SearchTerm: "",
 					Categories: []uint64{1, 2, 3},
 				}, &resp)
-			So(err, ShouldBeNil)
-			So(resp.Error, ShouldNotBeNil)
-			So(resp.Error.HttpHint, ShouldEqual, http.StatusBadRequest)
-			So(resp.Error.Code, ShouldEqual, catalog.ErrorCode_BADSEARCHREQUEST)
+			So(err, ShouldNotBeNil)
+			realError := errors.Parse(err.Error())
+			So(realError, ShouldNotBeNil)
+
+			So(realError.Code, ShouldEqual, http.StatusBadRequest)
 		})
 	})
 }
@@ -162,7 +171,7 @@ func newFakeRepo() *fakeRepo {
 
 func (r *fakeRepo) GetProduct(sku string) (product *catalog.Product, err error) {
 	if r.shouldFail {
-		return nil, errors.New("Faily Fail")
+		return nil, stderrors.New("Faily Fail")
 	}
 
 	product = &catalog.Product{
@@ -173,7 +182,7 @@ func (r *fakeRepo) GetProduct(sku string) (product *catalog.Product, err error) 
 
 func (r *fakeRepo) GetCategories() (categories []*catalog.ProductCategory, err error) {
 	if r.shouldFail {
-		return nil, errors.New("Faily Fail")
+		return nil, stderrors.New("Faily Fail")
 	}
 	return []*catalog.ProductCategory{
 		&catalog.ProductCategory{CategoryID: 42, Name: "Electronics", Description: "Super electronicy electronics"},
@@ -183,7 +192,7 @@ func (r *fakeRepo) GetCategories() (categories []*catalog.ProductCategory, err e
 
 func (r *fakeRepo) GetProductsInCategory(categoryID uint64) (products []*catalog.Product, err error) {
 	if r.shouldFail {
-		return nil, errors.New("Faily Fail")
+		return nil, stderrors.New("Faily Fail")
 	}
 	if categoryID == 42 {
 		return []*catalog.Product{
@@ -204,7 +213,7 @@ func (r *fakeRepo) ProductExists(sku string) (bool, error) {
 
 func (r *fakeRepo) Find(searchTerm string, categories []uint64) (products []*catalog.Product, err error) {
 	if r.shouldFail {
-		return nil, errors.New("Faily Fail")
+		return nil, stderrors.New("Faily Fail")
 	}
 	r.findCount++
 	return
