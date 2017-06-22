@@ -8,3 +8,8 @@ type redisProduct struct {
 	Model        string `redis:"model"`
 	Price        int64  `redis:"price"`
 }
+
+type redisCategory struct {
+	Name        string `redis:"name"`
+	Description string `redis:"description"`
+}

@@ -3,7 +3,6 @@ package service
 import (
 	"github.com/autodidaddict/go-shopping/catalog/internal/platform/errors"
 	"github.com/autodidaddict/go-shopping/catalog/proto"
-
 	"golang.org/x/net/context"
 )
 

@@ -33,6 +33,8 @@ shipping/cmd/shippingd/shippingd
 warehouse/cmd/warehoused/warehoused
 api/cmd/apid/apid
 
+.DS_Store
+
 #IDE files
 *.iml
 .idea/
