@@ -9,41 +9,62 @@ service Shipping {
 }
 
 message ShippingCostRequest {
-    string SKU = 1;
-    string Zipcode = 2;
+    string sku = 1;
+    string zip_code = 2;
 }
 message ShippingCostResponse {
-    repeated ShippingCost ShippingCosts = 1;
+    repeated ShippingCost shipping_costs = 1;
+
+    Error error = 100;
 }
 
 message MarkShippedRequest {
-    string SKU = 1;
-    uint64 OrderID = 2;
-    string Note = 3;
-    ShippingMethod ShippingMethod = 4;
+    string sku = 1;
+    uint64 order_id = 2;
+    string note = 3;
+    ShippingMethod shipping_method = 4;
 }
 message MarkShippedResponse {
-    bool Success = 1;
-    string TrackingNumber = 2;
+    bool success = 1;
+    string tracking_number = 2;
+    Error error = 100;
 }
 
 message ShippingStatusRequest {
-    uint64 OrderID = 1;
+    uint64 order_id = 1;
 }
 message ShippingStatusResponse {
-    string TrackingNumber = 1;
-    ShippingMethod ShippingMethod = 2;
+    ShippingStatus shipping_status = 1;
+
+    Error error = 100;
 }
 
+message ShippingStatus {
+    string tracking_number = 1;
+    ShippingMethod shipping_method = 2;
+}
 message ShippingCost {
-    ShippingMethod Method = 1;
-    int64 Price = 2;
+    ShippingMethod method = 1;
+    int64 price = 2;
 }
 
 enum ShippingMethod {
-    UNKNOWN = 0;
-    USPS = 1;
-    UPS = 2;
-    FEDEX = 3;
-    RAVEN = 4;
+    SM_UNKNOWN = 0;
+    SM_USPS = 1;
+    SM_UPS = 2;
+    SM_FEDEX = 3;
+    SM_RAVEN = 4;
 }
+
+message Error {
+    ErrorCode code = 1;
+    uint32 http_hint = 2;
+    string message = 3;
+}
+enum ErrorCode {
+    UNKNOWN = 0;
+    NOSUCHSKU = 1;
+    NOSUCHORDER = 2;
+    NOTAUTHORIZED = 3;
+}
+

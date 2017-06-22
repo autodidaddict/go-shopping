@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/autodidaddict/go-shopping/shipping/internal/platform/config"
+	"github.com/autodidaddict/go-shopping/shipping/internal/platform/redis"
 	"github.com/autodidaddict/go-shopping/shipping/internal/service"
 	"github.com/autodidaddict/go-shopping/shipping/proto"
 	"github.com/micro/go-grpc"
@@ -10,6 +11,7 @@ import (
 )
 
 func main() {
+	repo := redis.NewRedisRepository(":6379")
 	svc := grpc.NewService(
 		micro.Name(config.ServiceName),
 		micro.RegisterTTL(time.Second*30),
@@ -18,7 +20,7 @@ func main() {
 	)
 	svc.Init()
 
-	shipping.RegisterShippingHandler(svc.Server(), service.NewShippingService())
+	shipping.RegisterShippingHandler(svc.Server(), service.NewShippingService(repo))
 
 	if err := svc.Run(); err != nil {
 		panic(err)
