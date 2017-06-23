@@ -16,7 +16,8 @@ func TestShippingService_GetShippingCost(t *testing.T) {
 	Convey("Given a shipping service", t, func() {
 		ctx := context.Background()
 		repo := &fakeRepo{}
-		svc := service.NewShippingService(repo)
+		pub := &fakePublisher{}
+		svc := service.NewShippingService(repo, pub)
 
 		Convey("requesting shipping cost should invoke repository", func() {
 			repo.shouldFail = false
@@ -64,7 +65,8 @@ func TestShippingService_GetShippingStatus(t *testing.T) {
 	Convey("Given a shipping service", t, func() {
 		ctx := context.Background()
 		repo := &fakeRepo{}
-		svc := service.NewShippingService(repo)
+		pub := &fakePublisher{}
+		svc := service.NewShippingService(repo, pub)
 
 		Convey("requesting shipping status should invoke repository", func() {
 			repo.shouldFail = false
@@ -112,7 +114,8 @@ func TestShippingService_MarkItemShipped(t *testing.T) {
 	Convey("Given a shipping service", t, func() {
 		ctx := context.Background()
 		repo := &fakeRepo{}
-		svc := service.NewShippingService(repo)
+		pub := &fakePublisher{}
+		svc := service.NewShippingService(repo, pub)
 
 		Convey("marking an item as shipped should invoke repository", func() { // TODO: this should also eventually emit a broker message
 			repo.shouldFail = false
@@ -151,6 +154,16 @@ func TestShippingService_MarkItemShipped(t *testing.T) {
 			So(realError, ShouldNotBeNil)
 			So(realError.Code, ShouldEqual, http.StatusBadRequest)
 		})
+
+		Convey("should get a bad request when we don't supply a valid shipping method", func() {
+			repo.shouldFail = false
+			var resp shipping.MarkShippedResponse
+			err := svc.MarkItemShipped(ctx, &shipping.MarkShippedRequest{OrderId: 42, ShippingMethod: shipping.ShippingMethod_SM_UNKNOWN, Sku: "8675309"}, &resp)
+			So(err, ShouldNotBeNil)
+			realError := errors.Parse(err.Error())
+			So(realError, ShouldNotBeNil)
+			So(realError.Code, ShouldEqual, http.StatusBadRequest)
+		})
 	})
 }
 
@@ -181,7 +194,7 @@ func (r *fakeRepo) MarkShipped(sku string, orderID uint64, note string, shipping
 	return "111111", nil
 }
 
-func (r *fakeRepo) GetShippingStatus(orderID uint64) (shippingStatus *shipping.ShippingStatus, err error) {
+func (r *fakeRepo) GetShippingStatus(orderID uint64, sku string) (shippingStatus *shipping.ShippingStatus, err error) {
 	if r.shouldFail {
 		return nil, stderrors.New("Faily Fail")
 	}
@@ -201,4 +214,17 @@ func (r *fakeRepo) ProductExists(sku string) (exists bool, err error) {
 
 func (r *fakeRepo) OrderExists(orderID uint64) (exists bool, err error) {
 	return orderID == 42, nil
+}
+
+type fakePublisher struct {
+	shouldFail   bool
+	publishCount int
+}
+
+func (p *fakePublisher) PublishItemShippedEvent(event *shipping.ItemShippedEvent) (err error) {
+	if p.shouldFail {
+		return stderrors.New("Faily Fail")
+	}
+	p.publishCount++
+	return nil
 }

@@ -29,6 +29,7 @@ message MarkShippedResponse {
 
 message ShippingStatusRequest {
     uint64 order_id = 1;
+    string sku = 2;
 }
 message ShippingStatusResponse {
     ShippingStatus shipping_status = 1;
@@ -38,10 +39,20 @@ message ShippingStatusResponse {
 message ShippingStatus {
     string tracking_number = 1;
     ShippingMethod shipping_method = 2;
+    bool shipped = 3;
 }
 message ShippingCost {
     ShippingMethod method = 1;
     int64 price = 2;
+}
+
+message ItemShippedEvent {
+    string sku = 1;
+    uint64 order_id = 2;
+    string note = 3;
+    ShippingMethod shipping_method = 4;
+    string tracking_number = 5;
+    int64 timestamp = 6;
 }
 
 enum ShippingMethod {
@@ -50,4 +61,5 @@ enum ShippingMethod {
     SM_UPS = 2;
     SM_FEDEX = 3;
     SM_RAVEN = 4;
+    SM_NOTSHIPPED = 10;
 }

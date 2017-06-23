@@ -120,6 +120,7 @@ func (r *CatalogRepository) CategoryExists(categoryID uint64) (exists bool, err 
 	if err != nil {
 		return false, err
 	}
+	defer c.Close()
 	categoryKey := fmt.Sprintf("category:%d", categoryID)
 	fmt.Printf("Checking for the existence of category %s\n", categoryKey)
 	exists, err = redis.Bool(c.Do("EXISTS", categoryKey))
@@ -132,6 +133,7 @@ func (r *CatalogRepository) ProductExists(sku string) (exists bool, err error) {
 	if err != nil {
 		return false, err
 	}
+	defer c.Close()
 	productKey := fmt.Sprintf("product:%s", sku)
 	exists, err = redis.Bool(c.Do("EXISTS", productKey))
 	return exists, err
