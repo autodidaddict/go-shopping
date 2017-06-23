@@ -7,12 +7,16 @@ service Warehouse {
 }
 
 message DetailsRequest {
-    string SKU = 1;
+    string sku = 1;
 }
 
 message DetailsResponse {
-    string SKU = 1;
-    uint32 StockRemaining = 2;
-    string Manufacturer = 3;
-    string ModelNumber = 4;
+    WarehouseDetails details = 1;
+}
+
+message WarehouseDetails {
+    string sku = 1;
+    uint32 stock_remaining = 2;
+    string manufacturer = 3;
+    string model_number = 4;
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/autodidaddict/go-shopping/warehouse/internal/platform/config"
+	"github.com/autodidaddict/go-shopping/warehouse/internal/platform/redis"
 	"github.com/autodidaddict/go-shopping/warehouse/internal/service"
 	"github.com/autodidaddict/go-shopping/warehouse/proto"
 	"github.com/micro/go-grpc"
@@ -10,6 +11,9 @@ import (
 )
 
 func main() {
+
+	repo := redis.NewWarehouseRepository(":6379")
+
 	svc := grpc.NewService(
 		micro.Name(config.ServiceName),
 		micro.RegisterTTL(time.Second*30),
@@ -18,7 +22,7 @@ func main() {
 	)
 	svc.Init()
 
-	warehouse.RegisterWarehouseHandler(svc.Server(), service.NewWarehouseService())
+	warehouse.RegisterWarehouseHandler(svc.Server(), service.NewWarehouseService(repo))
 
 	if err := svc.Run(); err != nil {
 		panic(err)

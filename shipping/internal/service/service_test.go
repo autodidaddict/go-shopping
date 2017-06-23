@@ -117,13 +117,15 @@ func TestShippingService_MarkItemShipped(t *testing.T) {
 		pub := &fakePublisher{}
 		svc := service.NewShippingService(repo, pub)
 
-		Convey("marking an item as shipped should invoke repository", func() { // TODO: this should also eventually emit a broker message
+		Convey("marking an item as shipped should invoke repository", func() {
 			repo.shouldFail = false
+			pub.publishCount = 0
 			var resp shipping.MarkShippedResponse
 			err := svc.MarkItemShipped(ctx, &shipping.MarkShippedRequest{OrderId: 42, ShippingMethod: shipping.ShippingMethod_SM_UPS, Sku: "8675309"}, &resp)
 			So(err, ShouldBeNil)
 			So(resp.TrackingNumber, ShouldEqual, "111111")
 			So(resp.Success, ShouldEqual, true)
+			So(pub.publishCount, ShouldEqual, 1)
 		})
 
 		Convey("marking an item as shipped on non-existent order should fail", func() {
