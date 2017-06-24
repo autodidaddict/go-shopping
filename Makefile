@@ -4,6 +4,7 @@ HOOKS:=pre-commit
 LDFLAGSW:=-ldflags "-X github.com/autodidaddict/go-shopping/warehouse/internal/platform/config.Version=${VERSION}"
 LDFLAGSC:=-ldflags "-X github.com/autodidaddict/go-shopping/catalog/internal/platform/config.Version=${VERSION}"
 LDFLAGSS:=-ldflags "-X github.com/autodidaddict/go-shopping/shipping/internal/platform/config.Version=${VERSION}"
+LDFLAGSA:=-ldflags "-X github.com/autodidaddict/go-shopping/api/internal/platform/config.Version=${VERSION}"
 
 default: run
 
@@ -11,7 +12,14 @@ test:
 	@go test -v ./...
 
 clean:
-	@rm -rf ./coverage.out ./coverage-all.out ./warehouse/cmd/warehoused/warehoused
+	@rm -rf ./coverage.out ./coverage-all.out ./warehouse/cmd/warehoused/warehoused ./catalog/cmd/catalogd/catalogd ./shipping/cmd/shippingd/shippingd ./api/cmd/apid/apid
+
+api-lint:
+	@golint -set_exit_status warehouse/internal/... warehouse/cmd/...
+
+api: clean api-lint
+	@echo Building API Service...
+	@cd api/cmd/apid && CGO_ENABLED=0 go build ${LDFLAGSW} -a -installsuffix cgo -o apid main.go
 
 warehouse-lint:
 	@golint -set_exit_status warehouse/internal/... warehouse/cmd/...
@@ -34,7 +42,7 @@ shipping: clean shipping-lint
 	@echo Building Shipping Service...
 	@cd shipping/cmd/shippingd && CGO_ENABLED=0 go build ${LDFLAGSS} -a -installsuffix cgo -o shippingd main.go
 
-all: warehouse catalog shipping
+all: warehouse catalog shipping api
 
 catalog-proto:
 	@cd catalog/proto && protoc --go_out=plugins=micro:. catalog.proto
