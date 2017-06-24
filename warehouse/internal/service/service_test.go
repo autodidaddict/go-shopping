@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	stderrors "errors"
+	"github.com/autodidaddict/go-shopping/shipping/proto"
 	"github.com/autodidaddict/go-shopping/warehouse/internal/service"
 	"github.com/autodidaddict/go-shopping/warehouse/proto"
 	"github.com/micro/go-micro/errors"
@@ -15,8 +16,10 @@ import (
 func TestWarehouseService_GetWarehouseDetails(t *testing.T) {
 	Convey("Given a warehouse service", t, func() {
 		ctx := context.Background()
-		repo := &fakeRepo{}
-		svc := service.NewWarehouseService(repo)
+		stockChan := make(chan string)
+		repo := &fakeRepo{stockChan: stockChan}
+		shippedChannel := make(chan *shipping.ItemShippedEvent)
+		svc := service.NewWarehouseService(repo, shippedChannel)
 
 		Convey("requesting warehouse details should invoke the repository", func() {
 			repo.shouldFail = false
@@ -68,11 +71,24 @@ func TestWarehouseService_GetWarehouseDetails(t *testing.T) {
 			So(realError, ShouldNotBeNil)
 			So(realError.Code, ShouldEqual, http.StatusBadRequest)
 		})
+
+		Convey("when an item shipped event is received, it should ask the repo to decrement stock", func() {
+			repo.shouldFail = false
+			evt := &shipping.ItemShippedEvent{
+				Sku:            "111111",
+				ShippingMethod: shipping.ShippingMethod_SM_FEDEX,
+				TrackingNumber: "abc1233",
+			}
+			shippedChannel <- evt
+			s := <-stockChan
+			So(s, ShouldEqual, "111111")
+		})
 	})
 }
 
 type fakeRepo struct {
 	shouldFail bool
+	stockChan  chan string
 }
 
 func (r *fakeRepo) GetWarehouseDetails(sku string) (details *warehouse.WarehouseDetails, err error) {
@@ -85,6 +101,11 @@ func (r *fakeRepo) GetWarehouseDetails(sku string) (details *warehouse.Warehouse
 		Manufacturer:   "TOSHIBA",
 		Sku:            "111111",
 	}, nil
+}
+
+func (r *fakeRepo) DecrementStock(sku string) (err error) {
+	r.stockChan <- sku
+	return nil
 }
 
 func (r *fakeRepo) SkuExists(sku string) (exists bool, err error) {

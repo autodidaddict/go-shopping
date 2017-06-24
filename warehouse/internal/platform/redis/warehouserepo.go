@@ -56,6 +56,22 @@ func (r *WarehouseRepository) SkuExists(sku string) (exists bool, err error) {
 	return exists, err
 }
 
+// DecrementStock will reduce the on-hand quantity of a SKU by 1
+func (r *WarehouseRepository) DecrementStock(sku string) (err error) {
+	c, err := redis.Dial("tcp", r.redisDialString)
+	if err != nil {
+		return err
+	}
+	defer c.Close()
+	warehouseKey := fmt.Sprintf("warehouse:%s:stock", sku)
+	_, err = c.Do("INCRBY", warehouseKey, "-1")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type redisWarehouseDetails struct {
 	SKU          string `redis:"sku"`
 	Manufacturer string `redis:"mfr"`
