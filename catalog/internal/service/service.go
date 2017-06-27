@@ -32,16 +32,16 @@ func (c *catalogService) GetProductDetails(ctx context.Context, request *catalog
 	if request == nil {
 		return errors.BadRequest("", "Missing detail request")
 	}
-	exists, err := c.catalogRepo.ProductExists(request.SKU)
+	exists, err := c.catalogRepo.ProductExists(request.Sku)
 	if err != nil {
 		return errors.InternalServerError("", "Failed to check product existence: %s", err.Error())
 	}
 	if !exists {
-		return errors.NotFound(request.SKU, "No such product")
+		return errors.NotFound(request.Sku, "No such product")
 	}
-	results, err := c.catalogRepo.GetProduct(request.SKU)
+	results, err := c.catalogRepo.GetProduct(request.Sku)
 	if err != nil {
-		return errors.InternalServerError(request.SKU, "Failed to fetch product: %s", err.Error())
+		return errors.InternalServerError(request.Sku, "Failed to fetch product: %s", err.Error())
 	}
 
 	response.Product = results
@@ -68,15 +68,15 @@ func (c *catalogService) GetProductsInCategory(ctx context.Context, request *cat
 	if request == nil {
 		return errors.BadRequest("", "Missing category products request")
 	}
-	exists, err := c.catalogRepo.CategoryExists(request.CategoryID)
+	exists, err := c.catalogRepo.CategoryExists(request.CategoryId)
 	if err != nil {
 		return errors.InternalServerError("", "Failed to check category existence: %s", err.Error())
 	}
 	if !exists {
-		return errors.NotFound(string(request.CategoryID), "No such category")
+		return errors.NotFound(string(request.CategoryId), "No such category")
 	}
 
-	results, err := c.catalogRepo.GetProductsInCategory(request.CategoryID)
+	results, err := c.catalogRepo.GetProductsInCategory(request.CategoryId)
 	if err != nil {
 		return errors.InternalServerError("", "Failed to load products in category: %s", err.Error())
 	}

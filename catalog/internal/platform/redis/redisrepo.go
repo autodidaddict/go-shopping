@@ -71,7 +71,7 @@ func (r *CatalogRepository) GetCategories() (categories []*catalog.ProductCatego
 			return nil, err
 		}
 		categories = append(categories, &catalog.ProductCategory{
-			CategoryID:  uint64(categoryID),
+			CategoryId:  uint64(categoryID),
 			Name:        cat.Name,
 			Description: cat.Description,
 		})
@@ -103,7 +103,7 @@ func (r *CatalogRepository) GetProductsInCategory(categoryID uint64) (products [
 			Manufacturer: p.Manufacturer,
 			Price:        p.Price,
 			Model:        p.Model,
-			SKU:          p.SKU,
+			Sku:          p.SKU,
 		})
 	}
 	return products, nil

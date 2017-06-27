@@ -10,10 +10,10 @@ service Catalog {
 }
 
 message DetailRequest {
-    string SKU = 1;
+    string sku = 1;
 }
 message DetailResponse {
-    Product Product = 1;
+    Product product = 1;
 
 }
 
@@ -21,39 +21,39 @@ message AllCategoriesRequest {
     int32 Unused = 1;
 }
 message AllCategoriesResponse {
-    repeated ProductCategory Categories = 1;
+    repeated ProductCategory categories = 1;
 
 }
 
 message CategoryProductsRequest {
-    uint64 CategoryID = 1;
+    uint64 category_id = 1;
 }
 message CategoryProductsResponse {
-    repeated Product Products = 1;
+    repeated Product products = 1;
 
 }
 
 message SearchRequest {
-    string SearchTerm = 1;
-    repeated uint64 Categories = 2;
+    string search_term = 1;
+    repeated uint64 categories = 2;
 }
 message SearchResponse {
-    repeated Product SearchResults = 1;
+    repeated Product search_results = 1;
 
 }
 
 
 message Product {
-    string SKU = 1;
-    string Name = 2;
-    string Description = 3;
-    string Manufacturer = 4;
-    string Model = 5;
-    int64 Price = 6; // don't trust decimal precision
+    string sku = 1;
+    string name = 2;
+    string description = 3;
+    string manufacturer = 4;
+    string model = 5;
+    int64 price = 6; // don't trust decimal precision
 }
 message ProductCategory {
-    uint64 CategoryID = 1;
-    string Name = 2;
-    string Description = 3;
+    uint64 category_id = 1;
+    string name = 2;
+    string description = 3;
 }
 

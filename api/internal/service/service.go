@@ -65,7 +65,7 @@ func (cs *CommerceService) GetProductDetails(request *restful.Request, response 
 	product := catalogReply.catalogResponse.Product
 
 	details := productDetails{
-		SKU:            product.SKU,
+		SKU:            product.Sku,
 		StockRemaining: warehouseReply.warehouseResponse.Details.StockRemaining,
 		Manufacturer:   product.Manufacturer,
 		Price:          product.Price,
@@ -80,7 +80,7 @@ func (cs *CommerceService) getCatalogDetails(ctx context.Context, sku string) ch
 	ch := make(chan catalogResults, 1)
 
 	go func() {
-		res, err := cs.catalogClient.GetProductDetails(ctx, &catalog.DetailRequest{SKU: sku})
+		res, err := cs.catalogClient.GetProductDetails(ctx, &catalog.DetailRequest{Sku: sku})
 		ch <- catalogResults{catalogResponse: res, err: err}
 	}()
 

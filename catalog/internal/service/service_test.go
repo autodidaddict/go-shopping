@@ -20,15 +20,15 @@ func TestProductRetrieval(t *testing.T) {
 		Convey("Querying for a single product should invoke repository", func() {
 			repo.shouldFail = false
 			var resp catalog.DetailResponse
-			err := svc.GetProductDetails(ctx, &catalog.DetailRequest{SKU: "8675309"}, &resp)
+			err := svc.GetProductDetails(ctx, &catalog.DetailRequest{Sku: "8675309"}, &resp)
 			So(err, ShouldBeNil)
-			So(resp.Product.SKU, ShouldEqual, "8675309")
+			So(resp.Product.Sku, ShouldEqual, "8675309")
 		})
 
 		Convey("Querying for a non-existent product should produce a hinted failure", func() {
 			repo.shouldFail = false
 			var resp catalog.DetailResponse
-			err := svc.GetProductDetails(ctx, &catalog.DetailRequest{SKU: "DONTEXIST"}, &resp)
+			err := svc.GetProductDetails(ctx, &catalog.DetailRequest{Sku: "DONTEXIST"}, &resp)
 			So(err, ShouldNotBeNil)
 			realError := errors.Parse(err.Error())
 			So(realError, ShouldNotBeNil)
@@ -38,7 +38,7 @@ func TestProductRetrieval(t *testing.T) {
 		Convey("Querying for a product should fail when repository fails", func() {
 			repo.shouldFail = true
 			var resp catalog.DetailResponse
-			err := svc.GetProductDetails(ctx, &catalog.DetailRequest{SKU: "8675309"}, &resp)
+			err := svc.GetProductDetails(ctx, &catalog.DetailRequest{Sku: "8675309"}, &resp)
 			So(err, ShouldNotBeNil)
 		})
 	})
@@ -81,18 +81,18 @@ func TestProductsWithinCategory(t *testing.T) {
 			repo.shouldFail = false
 			var resp catalog.CategoryProductsResponse
 			err := svc.GetProductsInCategory(ctx, &catalog.CategoryProductsRequest{
-				CategoryID: 42,
+				CategoryId: 42,
 			}, &resp)
 			So(err, ShouldBeNil)
 			So(len(resp.Products), ShouldEqual, 2)
-			So(resp.Products[1].SKU, ShouldEqual, "ABC123")
+			So(resp.Products[1].Sku, ShouldEqual, "ABC123")
 		})
 
 		Convey("querying products within a non-existent category should produce appropriate error", func() {
 			repo.shouldFail = false
 			var resp catalog.CategoryProductsResponse
 			err := svc.GetProductsInCategory(ctx, &catalog.CategoryProductsRequest{
-				CategoryID: 1,
+				CategoryId: 1,
 			}, &resp)
 			So(err, ShouldNotBeNil)
 			realError := errors.Parse(err.Error())
@@ -104,7 +104,7 @@ func TestProductsWithinCategory(t *testing.T) {
 			repo.shouldFail = true
 			var resp catalog.CategoryProductsResponse
 			err := svc.GetProductsInCategory(ctx, &catalog.CategoryProductsRequest{
-				CategoryID: 42,
+				CategoryId: 42,
 			}, &resp)
 			So(err, ShouldNotBeNil)
 			realError := errors.Parse(err.Error())
@@ -175,7 +175,7 @@ func (r *fakeRepo) GetProduct(sku string) (product *catalog.Product, err error) 
 	}
 
 	product = &catalog.Product{
-		SKU: sku,
+		Sku: sku,
 	}
 	return
 }
@@ -185,8 +185,8 @@ func (r *fakeRepo) GetCategories() (categories []*catalog.ProductCategory, err e
 		return nil, stderrors.New("Faily Fail")
 	}
 	return []*catalog.ProductCategory{
-		&catalog.ProductCategory{CategoryID: 42, Name: "Electronics", Description: "Super electronicy electronics"},
-		&catalog.ProductCategory{CategoryID: 12, Name: "Toys", Description: "Toys"},
+		&catalog.ProductCategory{CategoryId: 42, Name: "Electronics", Description: "Super electronicy electronics"},
+		&catalog.ProductCategory{CategoryId: 12, Name: "Toys", Description: "Toys"},
 	}, nil
 }
 
@@ -196,8 +196,8 @@ func (r *fakeRepo) GetProductsInCategory(categoryID uint64) (products []*catalog
 	}
 	if categoryID == 42 {
 		return []*catalog.Product{
-			&catalog.Product{SKU: "ABC000"},
-			&catalog.Product{SKU: "ABC123"},
+			&catalog.Product{Sku: "ABC000"},
+			&catalog.Product{Sku: "ABC123"},
 		}, nil
 	}
 	return
